@@ -211,6 +211,7 @@ def create_file():
     }
     file = service.files().create(body=file_metadata, fields='id').execute()
     print('File ID: %s' % file)
+    return CmnUtil.response_success()
 
 
 
