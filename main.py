@@ -18,6 +18,14 @@ from utils.util import CmnUtil
 from config.cmn_const import CmnConst
 import uuid
 
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+SERVICE_ACCOUNT_FILE = './service.json'
+SCOPES = ['https://www.googleapis.com/auth/drive']
+
+FOLDER_ID = '1dGN5CThAav5TmPh7EQ98h4jgliDjx2Ko'
+
 load_dotenv()
 
 
@@ -187,6 +195,23 @@ def test_content():
         return CmnUtil.response_error(result["message"])
 
     return CmnUtil.response_success(result["data"])
+
+
+@app.route("/api/create-file", methods=["GET"])
+def create_file():
+    credentials = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+
+    service = build('drive', 'v3', credentials=credentials)
+
+    file_metadata = {
+        'name': 'photo.jpg',
+        'mimeType': 'image/jpeg',
+        'parents': [FOLDER_ID]
+    }
+    file = service.files().create(body=file_metadata, fields='id').execute()
+    print('File ID: %s' % file)
+
 
 
 @app.route("/api/statistic", methods=["GET"])
